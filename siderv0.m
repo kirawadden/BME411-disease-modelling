@@ -1,31 +1,33 @@
 close all; clear all; % Clear command window, close tabs/figures, clear ... workspace
 % SETUP FOR FORWARD-BACKWARD SWEEP METHOD
-test = -1; % Test variable; as long as variable is negative the while loops keeps repeating
-t0 = 0;  % Initial time
-tf = 365;    % Final time
+test = -1;     % Test variable; as long as variable is negative the while loops keeps repeating
+t0 = 0;        % Initial time
+tf = 365;      % Final time
 delt = 0.00001;% Accepted tollerance
-M = 365;    % Number of nodes
+M = 365;       % Number of nodes
 t = linspace(t0,tf,M+1);
 % Time variable where linspace creates M+1 equally spaced nodes between t0 and tf, including t0 and tf.
                       
 h = tf/M;% Spacing between nodes
 
 % MODEL PARAMETERS
-gamma_i = 1/14;% Recovery rate undetected: 14 days
-gamma_d = 1/14;% Recovery rate detected: 14 days
+gamma_i = 1/14;  % Recovery rate undetected: 14 days
+gamma_d = 1/14;  % Recovery rate detected: 14 days
 gamma_a = 1/12.4;% Recovery rate threatend: 12.4 days
-beta = 0.201;% Infection rate
-xi_i = 0.053;% Rate infected undetected to acutely symtomatic
-xi_d = 0.0053;% Rate infected detected to acutely symtomatic
-mu = 0.0185;% Mortality rate
-mu_hat = 5*mu;% Mortality rate when hospital capacity is exceeded
-nu = 0.1;% Testing rate (no, slow, fast testing = 0, 0.05, 0.10)
-h_bar =0.00222;% Hospital capacity rate (0.00222, 0.00333, 0.00444) bounded by 0.01
-psi=0.01;% Rate of vaccination
+beta = 0.201;    % Infection rate
+xi_i = 0.053;    % Rate infected undetected to acutely symtomatic
+xi_d = 0.0053;   % Rate infected detected to acutely symtomatic
+mu = 0.0185;     % Mortality rate
+mu_hat = 5*mu;   % Mortality rate when hospital capacity is exceeded
+nu = 0.1;        % Testing rate (no, slow, fast testing = 0, 0.05, 0.10)
+% optimization target - h_bar
+h_bar =0.00222;  % Hospital capacity rate (0.00222, 0.00333, 0.00444) bounded by 0.01
+psi=0.01;        % Rate of vaccination
 
 % WEIGHT FACTORS
 c1=0;
 c2=0;
+% optimization target - c3
 c3=0;
 b1=1;
 b2=1;
@@ -51,33 +53,35 @@ x7(1) = 0;
 % INITIAL GUESS FOR
 %OPTIMAL CONTROL INPUT
 
+% want to optimize h_bar, c3 and ru3
 ru1 = zeros(1,M+1);
 cr=0.9;
 for i=1:M+1
-if rand > cr
-    ru1 (i) = 1;
-end
+    if rand > cr
+        ru1 (i) = 1;
+    end
 end
 ru1 = zeros(1,M+1);
 cr=0.8;
 for i=1:M+1
-if rand > cr
-    ru1 (i) = 1;
-end
+    if rand > cr
+        ru1 (i) = 1;
+    end
 end
 ru2 = zeros(1,M+1);
 cr=0.9;
 for i=1:M+1
-if rand > cr
-    ru2 (i) = 1;
+    if rand > cr
+        ru2 (i) = 1;
+    end
 end
-end
+% optimization target - ru3
 ru3 = zeros(1,M+1);
 cr=0.9;
 for i=1:M+1
-if rand > cr
-    ru3 (i) = 1;
-end
+    if rand > cr
+        ru3 (i) = 1;
+    end
 end
 c1 = .02; c2 = .01; c3 = 0.03;
 u1 = c1*ones(1,M+1);% Control input for government intervention
@@ -109,50 +113,50 @@ L7(M+1) = 0;
 
 loopcnt = 0; % Count number of loops
 while(test < 0)
-loopcnt = loopcnt + 1;
-oldu1 = u1;
-oldu2 = u2;
-oldu3 = u3;
-oldx1 = x1;
-oldx2 = x2;
-oldx3 = x3;
-oldx4 = x4;
-oldx5 = x5;
-oldx6 = x6;
-oldx7 = x7;
+    loopcnt = loopcnt + 1;
+    oldu1 = u1;
+    oldu2 = u2;
+    oldu3 = u3;
+    oldx1 = x1;
+    oldx2 = x2;
+    oldx3 = x3;
+    oldx4 = x4;
+    oldx5 = x5;
+    oldx6 = x6;
+    oldx7 = x7;
 
-oldL1 = L1;
-oldL2 = L2;
-oldL3 = L3;
-oldL4 = L4;
-oldL5 = L5;
-oldL6 = L6;
-oldL7 = L7;
-% SYSTEM DYNAMICCS
-for i=1:M
-% IMPACT HEALTHCARE CAPACITY ON MORTALITY RATE
-if x4(i) <= h_bar
-mu_bar = mu*x4(i);
-else
-mu_bar = mu*h_bar + mu_hat*(x4(i) - h_bar);
-end
+    oldL1 = L1;
+    oldL2 = L2;
+    oldL3 = L3;
+    oldL4 = L4;
+    oldL5 = L5;
+    oldL6 = L6;
+    oldL7 = L7;
+    % SYSTEM DYNAMICCS
+    for i=1:M
+        % IMPACT HEALTHCARE CAPACITY ON MORTALITY RATE
+        if x4(i) <= h_bar
+            mu_bar = mu*x4(i);
+        else
+            mu_bar = mu*h_bar + mu_hat*(x4(i) - h_bar);
+        end
 
-m11 = -beta*x1(i)*x2(i)*(1-u1(i)) - psi*u3(i)*x1(i);
-m12 = beta*x1(i)*x2(i)*(1-u1(i)) - gamma_i*x2(i) - xi_i*x2(i) - nu*x2(i)*(u2(i));
-m13 = nu*x2(i)*(u2(i))-gamma_d*x3(i)-xi_d*x3(i);
-m14 = xi_i*x2(i)+xi_d*x3(i)-gamma_a*x4(i)-mu_bar;
-m15 = gamma_i*x2(i) + gamma_d*x3(i) + gamma_a*x4(i);
-m16 = mu_bar;
-m17 = psi*u3(i)*x1(i);
-x1(i+1) = x1(i) + h*m11; %first order explicit Euler! seemed to work!
-x2(i+1) = x2(i)+ h*m12;
-x3(i+1) = x3(i)+ h*m13;
-x4(i+1) = x4(i)+ h*m14;
-x5(i+1) = x5(i)+ h*m15;
-x6(i+1) = x6(i)+ h*m16;
-x7(i+1) = x7(i)+ h*m17;
-test = 1;
-end
+        m11 = -beta*x1(i)*x2(i)*(1-u1(i)) - psi*u3(i)*x1(i);
+        m12 = beta*x1(i)*x2(i)*(1-u1(i)) - gamma_i*x2(i) - xi_i*x2(i) - nu*x2(i)*(u2(i));
+        m13 = nu*x2(i)*(u2(i))-gamma_d*x3(i)-xi_d*x3(i);
+        m14 = xi_i*x2(i)+xi_d*x3(i)-gamma_a*x4(i)-mu_bar;
+        m15 = gamma_i*x2(i) + gamma_d*x3(i) + gamma_a*x4(i);
+        m16 = mu_bar;
+        m17 = psi*u3(i)*x1(i);
+        x1(i+1) = x1(i) + h*m11; %first order explicit Euler! seemed to work!
+        x2(i+1) = x2(i)+ h*m12;
+        x3(i+1) = x3(i)+ h*m13;
+        x4(i+1) = x4(i)+ h*m14;
+        x5(i+1) = x5(i)+ h*m15;
+        x6(i+1) = x6(i)+ h*m16;
+        x7(i+1) = x7(i)+ h*m17;
+        test = 1;
+    end
 end
 
 plot(x1)
