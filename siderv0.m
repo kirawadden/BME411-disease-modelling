@@ -1,15 +1,17 @@
-close all; clear all; % Clear command window, close tabs/figures, clear ... workspace
+function [x6, u1, u2, u3] = siderv0(h_bar, c3, ru3)
+% close all; clear all; % Clear command window, close tabs/figures, clear ... workspace
 % SETUP FOR FORWARD-BACKWARD SWEEP METHOD
 test = -1;     % Test variable; as long as variable is negative the while loops keeps repeating
 t0 = 0;        % Initial time
 tf = 365;      % Final time
 delt = 0.00001;% Accepted tollerance
-M = 365;       % Number of nodes
+M = 365;
 t = linspace(t0,tf,M+1);
 % Time variable where linspace creates M+1 equally spaced nodes between t0 and tf, including t0 and tf.
                       
 h = tf/M;% Spacing between nodes
-
+global population;
+population = 3.96e6;
 % MODEL PARAMETERS
 gamma_i = 1/14;  % Recovery rate undetected: 14 days
 gamma_d = 1/14;  % Recovery rate detected: 14 days
@@ -21,14 +23,14 @@ mu = 0.0185;     % Mortality rate
 mu_hat = 5*mu;   % Mortality rate when hospital capacity is exceeded
 nu = 0.1;        % Testing rate (no, slow, fast testing = 0, 0.05, 0.10)
 % optimization target - h_bar
-h_bar =0.00222;  % Hospital capacity rate (0.00222, 0.00333, 0.00444) bounded by 0.01
+% h_bar =0.00222;  % Hospital capacity rate (0.00222, 0.00333, 0.00444) bounded by 0.01
 psi=0.01;        % Rate of vaccination
 
 % WEIGHT FACTORS
 c1=0;
 c2=0;
 % optimization target - c3
-c3=0;
+% c3=0;
 b1=1;
 b2=1;
 b3=1;
@@ -75,15 +77,16 @@ for i=1:M+1
         ru2 (i) = 1;
     end
 end
-% optimization target - ru3
-ru3 = zeros(1,M+1);
-cr=0.9;
-for i=1:M+1
-    if rand > cr
-        ru3 (i) = 1;
-    end
-end
-c1 = .02; c2 = .01; c3 = 0.03;
+% % optimization target - ru3
+% ru3 = zeros(1,M+1);
+% cr=0.9;
+% for i=1:M+1
+%     if rand > cr
+%         ru3 (i) = 1;
+%     end
+% end
+c1 = .02; c2 = .01; 
+% c3 = 0.03;
 u1 = c1*ones(1,M+1);% Control input for government intervention
 u2 = c2*ones(1,M+1);% Control input for testing
 u3 = c3*ones(1,M+1);% Control input for vaccinating
@@ -93,7 +96,7 @@ u3=u3.*ru3;
 sum(ru3)
 %cost of vaccination
 
-costvac=costvacfn(u1,u2,u3,h_bar)
+% costvac = costvacfn(u1,u2,u3);
 % INITIAL CONDITIONS ADOINT SYSTEM
 L1 = zeros(1,M+1);
 L2 = zeros(1,M+1);
@@ -155,19 +158,21 @@ while(test < 0)
         x5(i+1) = x5(i)+ h*m15;
         x6(i+1) = x6(i)+ h*m16;
         x7(i+1) = x7(i)+ h*m17;
+        % need to remove test here - makes the while loop exit right away
         test = 1;
     end
 end
 
-plot(x1)
-hold
-plot(x2)
-plot(x3)
-plot(x4)
-plot(x5)
-plot(x6,'*')
-plot(x7)
-legend('S','Iu','ID','A', 'R','D','V')
-totdeaths=100*sum(x6)
-totcost = costvac + 100000*h_bar
+% plot(x1)
+% hold
+% plot(x2)
+% plot(x3)
+% plot(x4)
+% plot(x5)
+% plot(x6,'*')
+% plot(x7)
+% legend('S','Iu','ID','A', 'R','D','V')
+% totdeaths = costhospfn(sum(x6), h_bar)
+% totcost = costvac + totdeaths
 %
+end
