@@ -1,7 +1,7 @@
 function g = costhospfn(deaths, h_bar)
     global population;
 
-    cost_per_death = 93000000;
+    cost_per_death = 9300000;
     % convert death to $
     death_cost = population*cost_per_death*sum(deaths);
 
