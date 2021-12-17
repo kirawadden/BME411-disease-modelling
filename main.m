@@ -9,7 +9,7 @@ tic
 fmin = pso();
 toc
 
-[x1, x2, x3, x4, x5, x6, x7] = simGraph(fmin.Position(367), fmin.Position(368), fmin.Position(1:366));
+[x1, x2, x3, x4, x5, x6, x7] = simGraph(fmin.position(367), fmin.position(368), fmin.position(1:366));
 
 figure;
 plot(x1);
@@ -51,7 +51,7 @@ plot(x2);
 plot(x3);
 plot(x4);
 plot(x5);
-plot(x6,'*');
+plot(x6,'*');Position
 plot(x7);
 ylabel("Model parameters");
 xlabel("Days");
