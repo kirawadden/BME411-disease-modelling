@@ -51,7 +51,7 @@ plot(x2);
 plot(x3);
 plot(x4);
 plot(x5);
-plot(x6,'*');Position
+plot(x6,'*');
 plot(x7);
 ylabel("Model parameters");
 xlabel("Days");
