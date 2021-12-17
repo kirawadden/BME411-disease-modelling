@@ -35,9 +35,6 @@ function particle_swarm = pso(~)
         particle_array(i).VarMin=0;         % Lower Bound of Variables
         particle_array(i).VarMax=1;         % Upper Bound of Variables
 
-        % set initial position
-        % todo: setup initial vals 1:366 - ru3, 367 - h_bar, 368 - c3
-    %             obj.Position = unifrnd(obj.VarMin,obj.VarMax,obj.VarSize);
         particle_array(i).Position = [ru3, h_bar, c3];
 
         % set initial velocity
@@ -64,8 +61,6 @@ function particle_swarm = pso(~)
     end
     
     %%%%%%%%%%% Main Loop %%%%%%%%%%%
-    
-    % TODO - make our own... also, do we need to update these? some people
     % do and others do not
     % PSO Parameters
     w=1;            % Inertia Weight
@@ -84,8 +79,7 @@ function particle_swarm = pso(~)
                 + c2*rand(particle_array(i).VarSize).*(Global_Best.Position-particle_array(i).Position);
             
             particle_array(i).Velocity
-            % TODO may or may not need to check if velocity is within our
-            % bounds... whatever those may be
+            % check if velocity is within our bounds
             
  
             % Update Position
@@ -94,7 +88,7 @@ function particle_swarm = pso(~)
             % TODO may or may not need to check if velocity is within our
             % bounds... whatever those may be
             
-%             % Velocity Mirror Effect
+            % Velocity Mirror Effect
             IsOutside=(particle_array(i).Position<particle_array(i).VarMin | particle_array(i).Position>particle_array(i).VarMax);
             particle_array(i).Velocity(IsOutside)=-particle_array(i).Velocity(IsOutside);
             
@@ -130,8 +124,7 @@ function particle_swarm = pso(~)
                 end
             end
         end
-        % TODO --- How do we want to go about updating the coeffs?
-        % Everyone updates w, some people update c1 and c2 as well
+        % update weight
         w=w*wdamp;
     end
     
