@@ -1,9 +1,3 @@
-% Get objective function
-% objectiveFn --> siderv0 --> to get initial shit
-% objectiveFn --> costvacfn & costhospfn --> to get cost
-
-% Run objective fn through PSO
-% pso --> to get optimal solution
 fprintf('Particle Swarm Optimization: ');
 tic
 fmin = pso();
@@ -35,7 +29,7 @@ prob.intcon = 1:366;
 prob.nvars = 368;
 prob.solver = 'surrogateopt';
 % MaxFunctionEvaluations is the same as PSO
-prob.options = optimoptions('surrogateOpt', 'MaxFunctionEvaluations', 200);
+prob.options = optimoptions('surrogateOpt', 'MaxFunctionEvaluations', 500);
 
 fprintf("Surrogate Optimization: ");
 tic

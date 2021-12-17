@@ -1,7 +1,5 @@
 function particle_swarm = pso(~)
-    
     %%%%%%%%%%% Variables %%%%%%%%%%%
-       
     % Max Iterations
     MAX_ITERATIONS = 200;
     
@@ -49,8 +47,6 @@ function particle_swarm = pso(~)
         particle_array(i).particle_best.position = particle_array(i).position;
         particle_array(i).particle_best.cost = particle_array(i).cost;       
     end
-
-    
     %%%%%%%%%%% Initialize Global Best %%%%%%%%%%%
     for i=1:N_PARTICLES
         % Update Global Best
@@ -59,25 +55,21 @@ function particle_swarm = pso(~)
             global_best = particle_array(i).particle_best;
         end
     end
-    
     %%%%%%%%%%% Main Loop %%%%%%%%%%%
     % PSO Parameters
     w=1;            % Inertia Weight
     w_damp=0.99;     % Inertia Weight Damping Ratio
     c1=1.5;         % Personal Learning Coefficient
     c2=2.0;         % Global Learning Coefficient
-    
     % Number of iterations
     for iteration=1:MAX_ITERATIONS
         % Update every particle
         for i=1:N_PARTICLES
-            
             % Update Velocity
             particle_array(i).velocity = w*particle_array(i).velocity ...
                 + c1*rand(particle_array(i).VAR_SIZE).*(particle_array(i).particle_best.position-particle_array(i).position) ...
                 + c2*rand(particle_array(i).VAR_SIZE).*(global_best.position-particle_array(i).position);
             
- 
             % Update Position new_pos = old_pos + change in pos
             particle_array(i).position = particle_array(i).position + particle_array(i).velocity;
             
@@ -117,7 +109,6 @@ function particle_swarm = pso(~)
         % update weight
         w=w*w_damp;
     end
-    
     particle_swarm = global_best;
 end
 
