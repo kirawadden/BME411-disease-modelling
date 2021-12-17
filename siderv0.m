@@ -77,14 +77,7 @@ for i=1:M+1
         ru2 (i) = 1;
     end
 end
-% % optimization target - ru3
-% ru3 = zeros(1,M+1);
-% cr=0.9;
-% for i=1:M+1
-%     if rand > cr
-%         ru3 (i) = 1;
-%     end
-% end
+
 c1 = .02; c2 = .01; 
 % c3 = 0.03;
 u1 = c1*ones(1,M+1);% Control input for government intervention
@@ -93,7 +86,6 @@ u3 = c3*ones(1,M+1);% Control input for vaccinating
 u1=u1.*ru1;
 u2=u2.*ru2;
 u3=u3.*ru3;
-sum(ru3)
 %cost of vaccination
 
 % costvac = costvacfn(u1,u2,u3);
@@ -113,66 +105,46 @@ L4(M+1) = 0;
 L5(M+1) = 0;
 L6(M+1) = c2;
 L7(M+1) = 0;
-
-loopcnt = 0; % Count number of loops
-while(test < 0)
-    loopcnt = loopcnt + 1;
-    oldu1 = u1;
-    oldu2 = u2;
-    oldu3 = u3;
-    oldx1 = x1;
-    oldx2 = x2;
-    oldx3 = x3;
-    oldx4 = x4;
-    oldx5 = x5;
-    oldx6 = x6;
-    oldx7 = x7;
-
-    oldL1 = L1;
-    oldL2 = L2;
-    oldL3 = L3;
-    oldL4 = L4;
-    oldL5 = L5;
-    oldL6 = L6;
-    oldL7 = L7;
-    % SYSTEM DYNAMICCS
-    for i=1:M
-        % IMPACT HEALTHCARE CAPACITY ON MORTALITY RATE
-        if x4(i) <= h_bar
-            mu_bar = mu*x4(i);
-        else
-            mu_bar = mu*h_bar + mu_hat*(x4(i) - h_bar);
-        end
-
-        m11 = -beta*x1(i)*x2(i)*(1-u1(i)) - psi*u3(i)*x1(i);
-        m12 = beta*x1(i)*x2(i)*(1-u1(i)) - gamma_i*x2(i) - xi_i*x2(i) - nu*x2(i)*(u2(i));
-        m13 = nu*x2(i)*(u2(i))-gamma_d*x3(i)-xi_d*x3(i);
-        m14 = xi_i*x2(i)+xi_d*x3(i)-gamma_a*x4(i)-mu_bar;
-        m15 = gamma_i*x2(i) + gamma_d*x3(i) + gamma_a*x4(i);
-        m16 = mu_bar;
-        m17 = psi*u3(i)*x1(i);
-        x1(i+1) = x1(i) + h*m11; %first order explicit Euler! seemed to work!
-        x2(i+1) = x2(i)+ h*m12;
-        x3(i+1) = x3(i)+ h*m13;
-        x4(i+1) = x4(i)+ h*m14;
-        x5(i+1) = x5(i)+ h*m15;
-        x6(i+1) = x6(i)+ h*m16;
-        x7(i+1) = x7(i)+ h*m17;
-        % need to remove test here - makes the while loop exit right away
-        test = 1;
+% oldu1 = u1;
+% oldu2 = u2;
+% oldu3 = u3;
+% oldx1 = x1;
+% oldx2 = x2;
+% oldx3 = x3;
+% oldx4 = x4;
+% oldx5 = x5;
+% oldx6 = x6;
+% oldx7 = x7;
+% 
+% oldL1 = L1;
+% oldL2 = L2;
+% oldL3 = L3;
+% oldL4 = L4;
+% oldL5 = L5;
+% oldL6 = L6;
+% oldL7 = L7;
+% SYSTEM DYNAMICCS
+for i=1:M
+    % IMPACT HEALTHCARE CAPACITY ON MORTALITY RATE
+    if x4(i) <= h_bar
+        mu_bar = mu*x4(i);
+    else
+        mu_bar = mu*h_bar + mu_hat*(x4(i) - h_bar);
     end
-end
 
-% plot(x1)
-% hold
-% plot(x2)
-% plot(x3)
-% plot(x4)
-% plot(x5)
-% plot(x6,'*')
-% plot(x7)
-% legend('S','Iu','ID','A', 'R','D','V')
-% totdeaths = costhospfn(sum(x6), h_bar)
-% totcost = costvac + totdeaths
-%
+    m11 = -beta*x1(i)*x2(i)*(1-u1(i)) - psi*u3(i)*x1(i);
+    m12 = beta*x1(i)*x2(i)*(1-u1(i)) - gamma_i*x2(i) - xi_i*x2(i) - nu*x2(i)*(u2(i));
+    m13 = nu*x2(i)*(u2(i))-gamma_d*x3(i)-xi_d*x3(i);
+    m14 = xi_i*x2(i)+xi_d*x3(i)-gamma_a*x4(i)-mu_bar;
+    m15 = gamma_i*x2(i) + gamma_d*x3(i) + gamma_a*x4(i);
+    m16 = mu_bar;
+    m17 = psi*u3(i)*x1(i);
+    x1(i+1) = x1(i) + h*m11; %first order explicit Euler! seemed to work!
+    x2(i+1) = x2(i)+ h*m12;
+    x3(i+1) = x3(i)+ h*m13;
+    x4(i+1) = x4(i)+ h*m14;
+    x5(i+1) = x5(i)+ h*m15;
+    x6(i+1) = x6(i)+ h*m16;
+    x7(i+1) = x7(i)+ h*m17;
+end
 end

@@ -3,15 +3,19 @@ function particle_swarm = pso(~)
     %%%%%%%%%%% Variables %%%%%%%%%%%
        
     % Max Iterations
-    Max_It = 100; % TODO fine tune
+    Max_It = 200;
     
     % Number of particles
-    N_Particles = 20; % TODO fine tune
+    N_Particles = 20;
     
     % Array of particles in our swarm
-    % Creates and Initializes Particle Data via particle class
+    % Global Best - this will be our return value. Updated through the PSO
+    % algorithm iterations
     Global_Best.Cost = inf;
     Global_Best.Postition  = [];
+    % need to create different ICs for each particle. Apply small offset to
+    % h_bar and c3 to accomplish this. Offset not needed for ru3 since it
+    % is already randomized
     offset = 0.0001;
     for i=1:N_Particles
         M = 365;
@@ -26,28 +30,24 @@ function particle_swarm = pso(~)
         h_bar =0.0002 + offset;
         c3 = 0.0001 + offset;
         offset = offset + 0.0001;
-        %PARTICLE Construct an instance of this class
-        %   Detailed explanation goes here
 
-        % TODO: Modify to suit our obj fn and variables for optimization
-        particle_array(i).nVar=368;            % Number of Decision Variables
-        particle_array(i).VarSize=[1 particle_array(i).nVar];   % Size of Decision Variables Matrix
-        particle_array(i).VarMin=0;         % Lower Bound of Variables
-        particle_array(i).VarMax=1;         % Upper Bound of Variables
+        particle_array(i).nVar=368;                           % Number of input variables to optimize
+        particle_array(i).VarSize=[1 particle_array(i).nVar]; % Size of input matrix
+        particle_array(i).VarMin=0.0;                           % Lower bound
+        particle_array(i).VarMax=1.0;                           % Upper bound
 
+        % Initial particle positions = ICs
         particle_array(i).Position = [ru3, h_bar, c3];
 
-        % set initial velocity
+        % Particles are initially at rest
         particle_array(i).Velocity = zeros(particle_array(i).VarSize);
 
-        % calculate initial cost based on initial position
+        % Cost is based on initial position of the particles
         particle_array(i).Cost = objectiveFn(particle_array(i).Position);
 
-        % set current best
+        % Setup current best cost and position
         particle_array(i).Best.Position = particle_array(i).Position;
-        particle_array(i).Best.Cost = particle_array(i).Cost;
-        % Global Best
-       
+        particle_array(i).Best.Cost = particle_array(i).Cost;       
     end
 
     
@@ -61,7 +61,6 @@ function particle_swarm = pso(~)
     end
     
     %%%%%%%%%%% Main Loop %%%%%%%%%%%
-    % do and others do not
     % PSO Parameters
     w=1;            % Inertia Weight
     wdamp=0.99;     % Inertia Weight Damping Ratio
@@ -78,26 +77,20 @@ function particle_swarm = pso(~)
                 + c1*rand(particle_array(i).VarSize).*(particle_array(i).Best.Position-particle_array(i).Position) ...
                 + c2*rand(particle_array(i).VarSize).*(Global_Best.Position-particle_array(i).Position);
             
-            particle_array(i).Velocity
-            % check if velocity is within our bounds
-            
  
-            % Update Position
+            % Update Position new_pos = old_pos + change in pos
             particle_array(i).Position = particle_array(i).Position + particle_array(i).Velocity;
             
-            % TODO may or may not need to check if velocity is within our
-            % bounds... whatever those may be
-            
-            % Velocity Mirror Effect
+            % Ensure velocity is within our bounds
             IsOutside=(particle_array(i).Position<particle_array(i).VarMin | particle_array(i).Position>particle_array(i).VarMax);
             particle_array(i).Velocity(IsOutside)=-particle_array(i).Velocity(IsOutside);
             
             % Apply Position Limits
             for j=1:366
                 if particle_array(i).Position(j) > 1
-                    particle_array(i).Position(j) = 1;
+                    particle_array(i).Position(j) = 1.0;
                 else
-                    particle_array(i).Position(j) = 0;
+                    particle_array(i).Position(j) = 0.0;
                 end
             end
             for j = 367:368
@@ -105,12 +98,9 @@ function particle_swarm = pso(~)
                 particle_array(i).Position(j) = min(particle_array(i).Position(j),particle_array(i).VarMax);
                 
             end
-            
-%             
-            
+
             % Update Cost
             particle_array(i).Cost = objectiveFn(particle_array(i).Position);
-            particle_array(i).Cost
             
             % Update Personal Best and Global Best if applicable
             if particle_array(i).Cost<particle_array(i).Best.Cost
